@@ -9,11 +9,9 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
-	"unsafe"
-	"sort"
+	"syscall"
 	"time"
-	"strings"
-	"path"
+	"unsafe"
 )
 
 // Writer provide a synchronous file writer
@@ -50,6 +48,8 @@ type BufferWriter struct {
 	buf     *[]byte // store the pointer for atomic opertaion
 	swaping int32
 }
+
+const ERROR_SHARING_VIOLATION syscall.Errno = 32
 
 // buffer pool for asynchronous writer
 var _asyncBufferPool = sync.Pool{
@@ -94,45 +94,6 @@ func NewWriterFromConfig(c *Config) (RollingWriter, error) {
 
 	if c.MaxRemain > 0 {
 		writer.rollingfilech = make(chan string, c.MaxRemain)
-		dir, err := ioutil.ReadDir(c.LogPath)
-		if err != nil {
-		  return nil, err
-		}
-
-		files := make([]string, 0, 10)
-		for _, fi := range dir {
-			if fi.IsDir() {
-			    continue
-			}
-
-			fileName := c.FileName +".log."
-			if strings.Contains(fi.Name(), fileName) {
-				fileSuffix := path.Ext(fi.Name())
-				if len(fileSuffix) > 1 {
-						_,err:=time.Parse(c.TimeTagFormat,fileSuffix[1:])
-						if err == nil {
-							files = append(files, fi.Name())
-						}
-				}
-			}
-		}
-		sort.Slice(files, func(i, j int) bool {
-		    fileSuffix1 := path.Ext(files[i])
-			fileSuffix2 := path.Ext(files[j])
-			t1,_:=time.Parse(c.TimeTagFormat,fileSuffix1[1:])
-			t2,_:=time.Parse(c.TimeTagFormat,fileSuffix2[1:])
-			return t1.Before(t2)
-		 })
-
-		for _,file := range files {
-			retry:
-				select {
-				case writer.rollingfilech <- path.Join(c.LogPath,file):
-				default:
-					writer.DoRemove()
-					goto retry // remove the file and retry
-				}
-		}
 	}
 
 	switch c.WriterMode {
@@ -243,9 +204,24 @@ func AsynchronousWriterErrorChan(wr RollingWriter) (chan error, error) {
 
 // Reopen do the rotate, open new file and swap FD then trate the old FD
 func (w *Writer) Reopen(file string) error {
-	if err := os.Rename(w.absPath, file); err != nil {
+
+	const maxRetries = 100
+	for retries := 0; retries < maxRetries; retries++ {
+		err := os.Rename(w.absPath, file)
+		if err == nil {
+			if retries > 0 {
+				log.Printf("rename needed %d retries", retries)
+			}
+			break
+		}
+		if linkErr, ok := err.(*os.LinkError); ok && linkErr.Err == ERROR_SHARING_VIOLATION {
+			time.Sleep(time.Millisecond)
+			continue
+		}
+
 		return err
 	}
+
 	newfile, err := os.OpenFile(w.absPath, DefaultFileFlag, DefaultFileMode)
 	if err != nil {
 		return err
@@ -357,6 +333,7 @@ func (w *AsynchronousWriter) writer() {
 func (w *BufferWriter) Write(b []byte) (int, error) {
 	select {
 	case filename := <-w.fire:
+		w.Close()
 		if err := w.Reopen(filename); err != nil {
 			return 0, err
 		}
