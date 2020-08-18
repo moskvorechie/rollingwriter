@@ -1,4 +1,4 @@
-# RollingWriter [![Build Status](https://travis-ci.org/arthurkiller/rollingWriter.svg?branch=master)](https://travis-ci.org/arthurkiller/rollingWriter) [![Go Report Card](https://goreportcard.com/badge/github.com/arthurkiller/rollingwriter)](https://goreportcard.com/report/github.com/arthurkiller/rollingwriter) [![GoDoc](https://godoc.org/github.com/arthurkiller/rollingWriter?status.svg)](https://godoc.org/github.com/arthurkiller/rollingWriter) [![codecov](https://codecov.io/gh/arthurkiller/rollingwriter/branch/master/graph/badge.svg)](https://codecov.io/gh/arthurkiller/rollingwriter) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#logging)
+# RollingWriter [![Build Status](https://travis-ci.org/arthurkiller/rollingWriter.svg?branch=master)](https://travis-ci.org/arthurkiller/rollingWriter) [![Go Report Card](https://goreportcard.com/badge/github.com/moskvorechie/rollingwriter)](https://goreportcard.com/report/github.com/moskvorechie/rollingwriter) [![GoDoc](https://godoc.org/github.com/moskvorechie/rollingwriter?status.svg)](https://godoc.org/github.com/moskvorechie/rollingwriter) [![codecov](https://codecov.io/gh/arthurkiller/rollingwriter/branch/master/graph/badge.svg)](https://codecov.io/gh/arthurkiller/rollingwriter) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#logging)
 RollingWriter is an auto rotate `io.Writer` implementation. It can works well with logger.
 
 __Awesome Go popular log helper__
@@ -27,7 +27,7 @@ RollingWriter contains 2 separate patrs:
 ```bash
 goos: darwin
 goarch: amd64
-pkg: github.com/arthurkiller/rollingWriter
+pkg: github.com/moskvorechie/rollingwriter
 BenchmarkWrite-4                          300000              5952 ns/op               0 B/op          0 allocs/op
 BenchmarkParallelWrite-4                  200000              7846 ns/op               0 B/op          0 allocs/op
 BenchmarkAsynWrite-4                      200000              7917 ns/op           16324 B/op          1 allocs/op
@@ -37,7 +37,7 @@ BenchmarkParallelLockedWrite-4            200000              7796 ns/op        
 BenchmarkBufferWrite-4                    200000              6943 ns/op            1984 B/op          4 allocs/op
 BenchmarkParallelBufferWrite-4           1000000              1026 ns/op            7129 B/op          1 allocs/op
 PASS
-ok      github.com/arthurkiller/rollingWriter   14.867s
+ok      github.com/moskvorechie/rollingwriter   14.867s
 ```
 
 ## Quick Start
@@ -51,4 +51,4 @@ ok      github.com/arthurkiller/rollingWriter   14.867s
 ```
 Want more? View `demo` for more details.
 
-Any suggestion or new feature inneed, please [put up an issue](https://github.com/arthurkiller/rollingWriter/issues/new)
+Any suggestion or new feature inneed, please [put up an issue](https://github.com/moskvorechie/rollingwriter/issues/new)
